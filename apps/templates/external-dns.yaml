@@ -13,9 +13,9 @@ spec:
       values: |
        external-dns:
         provider: {{ .Values.provider }}
-        policy: {{ .Values | getOrNil "policy" | default "sync" }}
+        policy: {{ default "sync"  .Values.policy}}
         registry: txt
-        txtOwnerId: {{ .Values | getOrNil "txtOwnerId" | default "soundhound" }}
+        txtOwnerId: {{ default "soundhound" .Values.txtOwnerId}}
         logLevel: debug
         {{- if eq .Values.provider "oci" }}
         image:
