@@ -1,3 +1,5 @@
 spec:
   destination:
     server: https://152.70.130.252:6443
+    name: env1
+

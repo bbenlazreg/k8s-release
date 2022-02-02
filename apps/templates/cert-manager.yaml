@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager-{{ .Values.spec.destination.server }}
+  name: cert-manager-{{ .Values.spec.destination.name }}
   namespace: argocd
 spec:
   project: default
