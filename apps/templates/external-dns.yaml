@@ -12,12 +12,12 @@ spec:
     helm:
       values: |
        external-dns:
-        provider: {{ .Values.provider }}
-        policy: {{ default "sync" .Values.policy}}
+        provider: {{ .Values.external-dns.provider }}
+        policy: {{ default "sync"  .Values.external-dns.policy}}
         registry: txt
-        txtOwnerId: {{ default "soundhound" .Values.txtOwnerId}}
+        txtOwnerId: {{ default "soundhound" .Values.external-dns.txtOwnerId}}
         logLevel: debug
-        {{- if eq .Values.provider "oci" }}
+        {{- if eq .Values.external-dns.provider "oci" }}
         image:
           registry: phx.ocir.io
           repository: axowjpy794t2/sre-devops/external-dns
@@ -29,15 +29,15 @@ spec:
           - service
           - ingress
         domainFilters:
-          {{- range .Values.domains }}
+          {{- range .Values.external-dns.domains }}
           - {{ . }}
           {{- end }}
         {{- if hasKey .Values "azure" }}
         azure:
-          {{- if hasKey .Values.azure "cloud" }}
-          cloud: {{ .Values.azure.cloud }}
+          {{- if hasKey .Values.external-dns.azure "cloud" }}
+          cloud: {{ .Values.external-dns.azure.cloud }}
           {{- end }}
-          resourceGroup: {{ .Values.azure.resourceGroup }}
+          resourceGroup: {{ .Values.external-dns.azure.resourceGroup }}
           tenantId: ref+vault://secret/k8s/{{ $.Name }}#credentials.azure.tenant_id
           subscriptionId: ref+vault://secret/k8s/{{ $.Name }}#credentials.azure.subscription_id
           aadClientId: ref+vault://secret/k8s/{{ $.Name }}#credentials.azure.client_id
@@ -45,10 +45,10 @@ spec:
         {{- end }}
         {{- if hasKey .Values "google" }}
         google:
-          project: {{ .Values.google.project }}
+          project: {{ .Values.external-dns.google.project }}
           serviceAccountKey: ref+vault://secret/k8s/{{ $.Name }}/apps/external-dns#/serviceAccountContent
         {{- end }}
-        {{- if eq .Values.provider "oci" }}
+        {{- if eq .Values.external-dns.provider "oci" }}
         extraVolumeMounts:
           - name: config
             mountPath: /etc/kubernetes/
