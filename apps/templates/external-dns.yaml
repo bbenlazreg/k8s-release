@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns-{{ .Values.spec.destination.name }}
+  namespace: argocd
+spec:
+  project: default
+  source:
+    path: charts/external-dns
+    repoURL: https://github.com/bbenlazreg/k8s-release.git
+    targetRevision: HEAD
+    helm:
+      values: |
+       external-dns:
+        provider: {{ .Values.externalDns.provider }}
+        policy: {{ default "sync"  .Values.externalDns.policy}}
+        registry: txt
+        txtOwnerId: {{ default "soundhound" .Values.externalDns.txtOwnerId}}
+        logLevel: debug
+        {{- if eq .Values.externalDns.provider "oci" }}
+        image:
+          registry: phx.ocir.io
+          repository: axowjpy794t2/sre-devops/external-dns
+          tag: 1.2.2
+          pullSecrets:
+            - image-pull
+        {{- end }}
+        sources:
+          - service
+          - ingress
+        domainFilters:
+          {{- range .Values.externalDns.domains }}
+          - {{ . }}
+          {{- end }}
+        {{- if hasKey .Values "azure" }}
+        azure:
+          {{- if hasKey .Values.externalDns.azure "cloud" }}
+          cloud: {{ .Values.externalDns.azure.cloud }}
+          {{- end }}
+          resourceGroup: {{ .Values.externalDns.azure.resourceGroup }}
+          tenantId: ref+vault://secret/k8s/{{ $.Name }}#credentials.azure.tenant_id
+          subscriptionId: ref+vault://secret/k8s/{{ $.Name }}#credentials.azure.subscription_id
+          aadClientId: ref+vault://secret/k8s/{{ $.Name }}#credentials.azure.client_id
+          aadClientSecret: ref+vault://secret/k8s/{{ $.Name }}#credentials.azure.client_secret
+        {{- end }}
+        {{- if hasKey .Values "google" }}
+        google:
+          project: {{ .Values.externalDns.google.project }}
+          serviceAccountKey: ref+vault://secret/k8s/{{ $.Name }}/apps/external-dns#/serviceAccountContent
+        {{- end }}
+        {{- if eq .Values.externalDns.provider "oci" }}
+        extraVolumeMounts:
+          - name: config
+            mountPath: /etc/kubernetes/
+        extraVolumes:
+          - name: config
+            secret:
+              secretName: oci-external-dns-auth
+        {{- end }}
+
+  destination:
+    server: {{ .Values.spec.destination.server }}
+    namespace: kube-ingress
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true   
