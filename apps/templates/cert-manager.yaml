@@ -17,7 +17,7 @@ spec:
         serviceAccount:
          create: true
         ingressShim:
-          defaultIssuerName: {{ .Values.spec.destination.server }}
+          defaultIssuerName: {{ .Values.cert-manager.defaultIssuerName }}
           defaultIssuerKind: ClusterIssuer         
         installCRDs: true
         extraArgs:
