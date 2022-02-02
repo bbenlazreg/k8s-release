@@ -9,3 +9,4 @@ external-dns:
   provider: oci
 
 cert-manager:
+ defaultIssuerName: letsencrypt-stage
