@@ -13,7 +13,7 @@ spec:
       values: |
        external-dns:
         provider: {{ .Values.provider }}
-        policy: {{ default "sync"  .Values.policy}}
+        policy: {{ default "sync" .Values.policy}}
         registry: txt
         txtOwnerId: {{ default "soundhound" .Values.txtOwnerId}}
         logLevel: debug
