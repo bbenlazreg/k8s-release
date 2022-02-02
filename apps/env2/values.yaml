@@ -1,4 +1,4 @@
-external-dns:
+externalDns:
   chart: bitnami/external-dns
   chartVersion: ~5.4.4
 
@@ -8,5 +8,5 @@ external-dns:
 
   provider: oci
 
-cert-manager:
+certManager:
  defaultIssuerName: letsencrypt-stage
