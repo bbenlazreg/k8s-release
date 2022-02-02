@@ -1,0 +1,54 @@
+domains:
+  - terra.kubernetes.prod.us-phoenix-1-001.houndify.oci.soundhound.com
+  - terra.kubernetes.prod.us-phoenix-1-001.houndify.oci.soundhound.private
+
+provider: oci
+
+
+
+    values:
+      - provider: {{ .Environment.Values.provider }}
+        policy: {{ .Environment.Values | getOrNil "policy" | default "sync" }}
+        registry: txt
+        txtOwnerId: {{ .Environment.Values | getOrNil "txtOwnerId" | default "soundhound" }}
+        logLevel: debug
+        {{- if eq .Environment.Values.provider "oci" }}
+        image:
+          registry: phx.ocir.io
+          repository: axowjpy794t2/sre-devops/external-dns
+          tag: 1.2.2
+          pullSecrets:
+            - image-pull
+        {{- end }}
+        sources:
+          - service
+          - ingress
+        domainFilters:
+          {{- range .Environment.Values.domains }}
+          - {{ . }}
+          {{- end }}
+        {{- if hasKey .Environment.Values "azure" }}
+        azure:
+          {{- if hasKey .Environment.Values.azure "cloud" }}
+          cloud: {{ .Environment.Values.azure.cloud }}
+          {{- end }}
+          resourceGroup: {{ .Environment.Values.azure.resourceGroup }}
+          tenantId: ref+vault://secret/k8s/{{ $.Environment.Name }}#credentials.azure.tenant_id
+          subscriptionId: ref+vault://secret/k8s/{{ $.Environment.Name }}#credentials.azure.subscription_id
+          aadClientId: ref+vault://secret/k8s/{{ $.Environment.Name }}#credentials.azure.client_id
+          aadClientSecret: ref+vault://secret/k8s/{{ $.Environment.Name }}#credentials.azure.client_secret
+        {{- end }}
+        {{- if hasKey .Environment.Values "google" }}
+        google:
+          project: {{ .Environment.Values.google.project }}
+          serviceAccountKey: ref+vault://secret/k8s/{{ $.Environment.Name }}/apps/external-dns#/serviceAccountContent
+        {{- end }}
+        {{- if eq .Environment.Values.provider "oci" }}
+        extraVolumeMounts:
+          - name: config
+            mountPath: /etc/kubernetes/
+        extraVolumes:
+          - name: config
+            secret:
+              secretName: oci-external-dns-auth
+        {{- end }}

@@ -1,0 +1,5 @@
+domains:
+  - luna.kubernetes.stage.us-phoenix-1-001.houndify.oci.soundhound.com
+  - luna.kubernetes.stage.us-phoenix-1-001.houndify.oci.soundhound.private
+
+provider: oci

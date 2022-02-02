@@ -1,5 +1,11 @@
-spec:
-  destination:
-    server: https://152.70.130.252:6443
-    name: env1
+external-dns:
+  chart: bitnami/external-dns
+  chartVersion: ~5.4.4
 
+  domains:
+    - luna.kubernetes.stage.us-phoenix-1-001.houndify.oci.soundhound.com
+    - luna.kubernetes.stage.us-phoenix-1-001.houndify.oci.soundhound.private
+
+  provider: oci
+
+cert-manager:

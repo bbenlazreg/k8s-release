@@ -1,4 +1,11 @@
-spec:
-  destination:
-    server: https://129.153.202.22:6443
-    name: env2    
+external-dns:
+  chart: bitnami/external-dns
+  chartVersion: ~5.4.4
+
+  domains:
+    - terra.kubernetes.prod.us-phoenix-1-001.houndify.oci.soundhound.com
+    - terra.kubernetes.prod.us-phoenix-1-001.houndify.oci.soundhound.private
+
+  provider: oci
+
+cert-manager:

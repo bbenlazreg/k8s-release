@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: appset
+  namespace: argocd
+spec:
+  generators:
+  - list: 
+      elements: 
+      - cluster: env1
+        url: https://152.70.130.252:6443
+      - cluster: env2
+        url: https://129.153.202.22:6443
+  template: 
+    metadata:
+      name: '{{cluster}}-k8s-base-services'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/bbenlazreg/k8s-release.git
+        targetRevision: HEAD
+        path: apps/
+        helm:
+         valueFiles: apps/{{cluster}}/values.yaml
+         values: |
+          spec:
+           destination:
+            server: {{url}}
+            name: {{cluster}}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd
