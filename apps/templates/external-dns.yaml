@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: external-dns-{{ .Values.spec.destination.name }}
   namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io  
 spec:
   project: default
   source:
@@ -62,5 +64,8 @@ spec:
     server: {{ .Values.spec.destination.server }}
     namespace: kube-ingress
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
-    - CreateNamespace=true   
+    - CreateNamespace=true
